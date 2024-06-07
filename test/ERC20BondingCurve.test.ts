@@ -4,8 +4,10 @@ import hre from "hardhat";
 
 const imageUrl =
   "https://assets.raribleuserdata.com/prod/v1/image/t_image_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVRBSFVMQ0QydVVYVE05c2hBZHpOVGZZWGlnanVyWjl2VFZnQ29TMXd2QURVL2ltYWdlLmpwZWc=";
-const initialSupply = 69_420_000;
-const initialFraxReserve = 3 * Math.pow(10, 18);
+const initialSupply = BigInt(1_000_000_000);
+const ONE_TOKEN = BigInt(Math.pow(10, 6));
+const initialFraxReserve = BigInt(3 * Math.pow(10, 18));
+const ONE_FRAX = BigInt(Math.pow(10, 18));
 
 describe("ERC20BondingCurve", function () {
   async function deployTokenFixture() {
@@ -27,12 +29,14 @@ describe("ERC20BondingCurve", function () {
 
     const bondingCurveAddress = await token.getAddress();
 
-    frax.connect(owner).approve(bondingCurveAddress, await frax.totalSupply());
-    token
+    await frax
+      .connect(owner)
+      .approve(bondingCurveAddress, await frax.totalSupply());
+    await token
       .connect(owner)
       .approve(bondingCurveAddress, await token.totalSupply());
 
-    frax.connect(owner).transfer(bondingCurveAddress, initialFraxReserve);
+    await frax.connect(owner).transfer(bondingCurveAddress, initialFraxReserve);
 
     return {
       token,
@@ -69,13 +73,16 @@ describe("ERC20BondingCurve", function () {
 
       const price = await token.tokenPrice();
 
-      expect(price).equals(Math.floor(initialFraxReserve / initialSupply));
+      expect(price).approximately(
+        initialFraxReserve / (initialSupply * ONE_TOKEN),
+        5000
+      );
     });
   });
 
   describe("Transactions", function () {
     it("Should transfer tokens between accounts", async function () {
-      const { token, frax, owner, acc1, acc2 } = await loadFixture(
+      const { token, owner, acc1, acc2 } = await loadFixture(
         deployTokenFixture
       );
 
@@ -132,12 +139,61 @@ describe("ERC20BondingCurve", function () {
   });
 
   describe("Market Maker", function () {
-    it("Should set initial price", async function () {
+    it("Should compute higher prices after sale", async function () {
       const { token } = await loadFixture(deployTokenFixture);
 
-      const image = await token.image();
+      const tokensPerFrax = await token.calculateTokensReceivedByFraxAmount(
+        ONE_FRAX
+      );
 
-      expect(image).equals(imageUrl);
+      const initialPrice = await token.tokenPrice();
+
+      await token.buy(tokensPerFrax);
+
+      const finalPrice = await token.tokenPrice();
+
+      expect(finalPrice).to.greaterThan(initialPrice);
+    });
+
+    it("Should compute lower prices after purchase", async function () {
+      const { token } = await loadFixture(deployTokenFixture);
+
+      const tokensPerFrax = await token.calculateTokensReceivedByFraxAmount(
+        ONE_FRAX
+      );
+      await token.buy(tokensPerFrax);
+
+      const initialPrice = await token.tokenPrice();
+
+      await token.sell(tokensPerFrax);
+
+      const finalPrice = await token.tokenPrice();
+
+      expect(finalPrice).to.lessThan(initialPrice);
+    });
+
+    it("Should compute purchase prices dependant approximately on market cap", async function () {
+      const { token, owner } = await loadFixture(deployTokenFixture);
+
+      await token.buy(
+        await token.calculateTokensReceivedByFraxAmount(
+          ONE_FRAX * BigInt(2)
+        )
+      );
+
+      console.log(
+        Number(await token.marketCap()) / Number(ONE_FRAX),
+        Number(await token.balanceOf(owner.address)) / Number(ONE_TOKEN),
+        Number(await token.tokenPrice()) / Number(ONE_FRAX)
+      );
+
+      var marketCap = await token.marketCap();
+      var expectedPrice = ONE_FRAX / (marketCap / (await token.totalSupply()));
+      var actualPrice = await token.calculateTokensReceivedByFraxAmount(
+        ONE_FRAX
+      );
+
+      expect(actualPrice).to.equal(expectedPrice);
     });
   });
 });

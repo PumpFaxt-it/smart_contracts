@@ -4,14 +4,26 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 import "./ERC20withImage.sol";
 
 contract ERC20BondingCurve is ERC20withImage {
     IERC20 public tradedToken;
     IERC20 public frax;
 
-    event Buy(address indexed buyer, uint256 amount, uint256 cost);
-    event Sell(address indexed seller, uint256 amount, uint256 refund);
+    event Buy(
+        address indexed buyer,
+        uint256 amount,
+        uint256 cost,
+        uint256 price
+    );
+    event Sell(
+        address indexed seller,
+        uint256 amount,
+        uint256 refund,
+        uint256 price
+    );
 
     constructor(
         uint256 initialSupply_,
@@ -25,7 +37,11 @@ contract ERC20BondingCurve is ERC20withImage {
     }
 
     function tokenPrice() public view returns (uint256) {
-        return calculateBuyCostByTokenAmount(1 * (10 ** decimals()));
+        return calculateBuyCostByTokenAmount(1);
+    }
+
+    function marketCap() public view returns (uint256) {
+        return frax.balanceOf(address(this));
     }
 
     function calculateBuyCostByTokenAmount(
@@ -46,22 +62,22 @@ contract ERC20BondingCurve is ERC20withImage {
         return (reserve * amount_) / (supply + amount_);
     }
 
-    function calculatePurchasedTokensByFraxAmount(
+    function calculateTokensByFraxRefundAmount(
         uint256 amount_
     ) public view returns (uint256) {
         uint256 supply = tradedToken.balanceOf(address(this));
         uint256 reserve = frax.balanceOf(address(this));
 
-        return (supply * amount_) / (reserve + amount_);
+        return (supply * amount_) / (reserve - amount_);
     }
 
-    function calculateTokensToBeSoldByFraxAmount(
+    function calculateTokensReceivedByFraxAmount(
         uint256 amount_
     ) public view returns (uint256) {
         uint256 supply = tradedToken.balanceOf(address(this));
         uint256 reserve = frax.balanceOf(address(this));
-
-        return (supply * amount_) / (amount_ - reserve);
+        console.log(supply, reserve, amount_, "Test");
+        return (supply * amount_) / (reserve + amount_);
     }
 
     function buy(uint256 amount_) public {
@@ -76,7 +92,7 @@ contract ERC20BondingCurve is ERC20withImage {
             "Token transfer failed"
         );
 
-        emit Buy(msg.sender, amount_, cost);
+        emit Buy(msg.sender, amount_, cost, tokenPrice());
     }
 
     function sell(uint256 amount_) public {
@@ -88,6 +104,6 @@ contract ERC20BondingCurve is ERC20withImage {
         );
         require(frax.transfer(msg.sender, refund), "FRAX transfer failed");
 
-        emit Sell(msg.sender, amount_, refund);
+        emit Sell(msg.sender, amount_, refund, tokenPrice());
     }
 }
