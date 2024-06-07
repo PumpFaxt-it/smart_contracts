@@ -25,7 +25,7 @@ contract ERC20BondingCurve is ERC20withImage {
     }
 
     function tokenPrice() public view returns (uint256) {
-        return calculateBuyCostByTokenAmount(1);
+        return calculateBuyCostByTokenAmount(1 * (10 ** decimals()));
     }
 
     function calculateBuyCostByTokenAmount(
