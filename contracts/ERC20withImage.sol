@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ERC20withImage is ERC20 {
     string private _image;
-    uint8 private _decimals = 6;
+    uint8 private _decimals = 18;
 
     constructor(
         uint256 initialSupply_,
