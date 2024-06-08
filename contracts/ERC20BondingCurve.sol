@@ -5,10 +5,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./ERC20withImage.sol";
+import "./PumpItFaxtInterface.sol";
 
 contract ERC20BondingCurve is ERC20withImage {
-    IERC20 public tradedToken;
-    IERC20 public frax;
+    IERC20 private tradedToken;
+    IERC20 private frax;
+    PumpItFaxtInterface private pumpItFaxt;
 
     uint256 private _reserve;
     uint256 private _virtualReserve;
@@ -38,6 +40,7 @@ contract ERC20BondingCurve is ERC20withImage {
     {
         tradedToken = IERC20(address(this));
         frax = IERC20(fraxAddress_);
+        pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
         _virtualReserve = _reserveThreshold * 2;
         updateReserveAndSupply();
