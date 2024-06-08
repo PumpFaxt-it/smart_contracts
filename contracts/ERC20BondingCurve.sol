@@ -12,6 +12,7 @@ contract ERC20BondingCurve is ERC20withImage {
     IERC20 private frax;
     PumpItFaxtInterface private pumpItFaxt;
 
+    address private _creator;
     uint256 private _reserve;
     uint256 private _virtualReserve;
     uint256 private _supply;
@@ -24,6 +25,7 @@ contract ERC20BondingCurve is ERC20withImage {
     event PriceChange(uint256 timestamp, uint256 price, uint256 marketCap);
 
     constructor(
+        address creator_,
         uint256 initialSupply_,
         string memory name_,
         string memory symbol_,
@@ -42,6 +44,7 @@ contract ERC20BondingCurve is ERC20withImage {
         frax = IERC20(fraxAddress_);
         pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
+        _creator = creator_;
         _virtualReserve = _reserveThreshold * 2;
         updateReserveAndSupply();
     }

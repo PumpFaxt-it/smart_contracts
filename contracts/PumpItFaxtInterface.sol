@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ERC20BondingCurve.sol";
 
-contract PumpItFaxtInterface {
+contract PumpItFaxtInterface is Ownable {
     ERC20BondingCurve[] private _tokens;
     mapping(address => bool) private _validTokens;
     IERC20 private frax;
@@ -13,7 +14,7 @@ contract PumpItFaxtInterface {
 
     event Launch(address);
 
-    constructor(address fraxAddress_) {
+    constructor(address fraxAddress_) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
     }
 
@@ -28,6 +29,7 @@ contract PumpItFaxtInterface {
         );
 
         ERC20BondingCurve newToken = new ERC20BondingCurve(
+            msg.sender,
             initialSupply_,
             name_,
             symbol_,
@@ -46,6 +48,14 @@ contract PumpItFaxtInterface {
 
     function deploymentCharge() public view returns (uint256) {
         return _deploymentCharge;
+    }
+
+    function changeDeploymentCharge(uint256 newCharge_) public onlyOwner {
+        _deploymentCharge = newCharge_;
+    }
+
+    function withdraw(address addr_) public onlyOwner {
+        frax.transfer(addr_, frax.balanceOf(addr_));
     }
 
     function isTokenValid(address addr_) public view returns (bool) {
