@@ -1,8 +1,13 @@
 import { ethers } from "hardhat";
+import 'dotenv/config'
 
 const ONE_FRAX = BigInt(Math.pow(10, 18));
 
 async function main() {
+  if (!process.env.DEPLOYER_PRIVATE_KEY) throw ("Provide deployer private key")
+  
+  const deployer = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY)
+
   const DummyFrax = await ethers.getContractFactory("DummyFrax");
   const frax = await DummyFrax.deploy();
 
