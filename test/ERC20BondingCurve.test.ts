@@ -22,6 +22,7 @@ describe("ERC20BondingCurve", function () {
       "ERC20BondingCurve"
     );
     const token = await ERC20BondingCurve.connect(owner).deploy(
+      owner.address,
       initialSupply,
       "Pumping Token",
       "PUMP",
