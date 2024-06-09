@@ -22,6 +22,7 @@ describe("ERC20BondingCurve", function () {
       "ERC20BondingCurve"
     );
     const token = await ERC20BondingCurve.connect(owner).deploy(
+      owner.address,
       initialSupply,
       "Pumping Token",
       "PUMP",
@@ -103,7 +104,7 @@ describe("ERC20BondingCurve", function () {
       const initialOwnerBalance = await token.balanceOf(owner.address);
 
       // Try to send 1 token from acc1 (0 tokens) to owner.
-      token.connect(acc1).transfer(owner.address, 1);
+      expect(token.connect(acc1).transfer(owner.address, 1)).to.be.reverted;
 
       expect(await token.balanceOf(owner.address)).to.equal(
         initialOwnerBalance
