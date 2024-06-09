@@ -3,7 +3,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "dev": "hardhat run scripts/deploy.ts --network localhost",
-    "node": "hardhat node"
+    "localnode": "hardhat node"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",

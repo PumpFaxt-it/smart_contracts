@@ -11,6 +11,9 @@ contract PumpItFaxtInterface is Ownable {
     IERC20 private frax;
     uint256 private _deploymentCharge = 0;
 
+    uint256 private _minimumInitialSupply = 0;
+    uint256 private _maximumInitialSupply = 0;
+
     event Launch(address indexed creator, address token);
 
     constructor(address fraxAddress_) Ownable(msg.sender) {
@@ -26,6 +29,9 @@ contract PumpItFaxtInterface is Ownable {
         require(
             frax.transferFrom(msg.sender, address(this), _deploymentCharge)
         );
+
+        require(_minimumInitialSupply <= initialSupply_, "Not enough Initial Supply");
+        require(initialSupply_ <= _maximumInitialSupply, "Greater than Maximum Initial Supply");
 
         ERC20BondingCurve newToken = new ERC20BondingCurve(
             msg.sender,
@@ -58,5 +64,15 @@ contract PumpItFaxtInterface is Ownable {
 
     function isTokenValid(address addr_) public view returns (bool) {
         return _validTokens[addr_];
+    }
+
+    function setMinimumInitialTokenSupply(
+        uint256 newMinimum_
+    ) public onlyOwner {
+        _minimumInitialSupply = newMinimum_;
+    }
+
+    function setMaximumInitialTokenSupply(uint256 newMaxium_) public onlyOwner {
+        _maximumInitialSupply = newMaxium_;
     }
 }
