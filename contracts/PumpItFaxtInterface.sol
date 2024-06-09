@@ -30,8 +30,14 @@ contract PumpItFaxtInterface is Ownable {
             frax.transferFrom(msg.sender, address(this), _deploymentCharge)
         );
 
-        require(_minimumInitialSupply <= initialSupply_, "Not enough Initial Supply");
-        require(initialSupply_ <= _maximumInitialSupply, "Greater than Maximum Initial Supply");
+        require(
+            _minimumInitialSupply <= initialSupply_,
+            "Not enough initial supply"
+        );
+        require(
+            initialSupply_ <= _maximumInitialSupply,
+            "Initial supply must be less that maximum allowed supply"
+        );
 
         ERC20BondingCurve newToken = new ERC20BondingCurve(
             msg.sender,
