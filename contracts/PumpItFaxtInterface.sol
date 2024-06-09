@@ -12,7 +12,7 @@ contract PumpItFaxtInterface is Ownable {
     IERC20 private frax;
     uint256 private _deploymentCharge;
 
-    event Launch(address);
+    event Launch(address token);
 
     constructor(address fraxAddress_) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
