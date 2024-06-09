@@ -14,9 +14,9 @@ async function main() {
 
   console.log(
     consoleColor("yellow"),
-    "DummyFrax ",
+    "DummyFrax",
     consoleColor("white"),
-    "deployed to : ",
+    "deployed to :",
     consoleColor("cyan"),
     await frax.getAddress()
   );
@@ -32,9 +32,9 @@ async function main() {
 
   console.log(
     consoleColor("yellow"),
-    "PumpItFaxtInterface ",
+    "PumpItFaxtInterface",
     consoleColor("white"),
-    "deployed to : ",
+    "deployed to :",
     consoleColor("cyan"),
     await pumpItFaxt.getAddress()
   );
