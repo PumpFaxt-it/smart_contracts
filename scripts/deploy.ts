@@ -1,17 +1,25 @@
 import { ethers } from "hardhat";
-import 'dotenv/config'
+import "dotenv/config";
+import { consoleColor } from "../utils";
 
 const ONE_FRAX = BigInt(Math.pow(10, 18));
 
 async function main() {
-  if (!process.env.DEPLOYER_PRIVATE_KEY) throw ("Provide deployer private key")
-  
-  const deployer = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY)
+  if (!process.env.DEPLOYER_PRIVATE_KEY) throw "Provide deployer private key";
+
+  const deployer = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY);
 
   const DummyFrax = await ethers.getContractFactory("DummyFrax");
   const frax = await DummyFrax.deploy();
 
-  console.log("DummyFrax deployed to : ", await frax.getAddress());
+  console.log(
+    consoleColor("yellow"),
+    "DummyFrax ",
+    consoleColor("white"),
+    "deployed to : ",
+    consoleColor("cyan"),
+    await frax.getAddress()
+  );
 
   const PumpItFaxtInterface = await ethers.getContractFactory(
     "PumpItFaxtInterface"
@@ -23,9 +31,15 @@ async function main() {
   pumpItFaxt.setMaximumInitialTokenSupply(BigInt(1_000_000_000) * ONE_FRAX);
 
   console.log(
-    "PumpItFaxtInterface deployed to : ",
+    consoleColor("yellow"),
+    "PumpItFaxtInterface ",
+    consoleColor("white"),
+    "deployed to : ",
+    consoleColor("cyan"),
     await pumpItFaxt.getAddress()
   );
+
+  console.log(consoleColor("white"));
 }
 
 main()
