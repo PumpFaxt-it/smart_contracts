@@ -24,11 +24,15 @@ async function main() {
   const PumpItFaxtInterface = await ethers.getContractFactory(
     "PumpItFaxtInterface"
   );
-  const pumpItFaxt = await PumpItFaxtInterface.deploy(await frax.getAddress());
+  const pumpItFaxt = await PumpItFaxtInterface.connect(deployer).deploy(
+    await frax.getAddress()
+  );
 
-  pumpItFaxt.setDeploymentCharge(BigInt(2) * ONE_FRAX);
-  pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX);
-  pumpItFaxt.setMaximumInitialTokenSupply(BigInt(1_000_000_000) * ONE_FRAX);
+  await pumpItFaxt.setDeploymentCharge(BigInt(2) * ONE_FRAX);
+  await pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX);
+  await pumpItFaxt.setMaximumInitialTokenSupply(
+    BigInt(1_000_000_000) * ONE_FRAX
+  );
 
   console.log(
     consoleColor("yellow"),
