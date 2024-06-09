@@ -7,12 +7,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ERC20BondingCurve.sol";
 
 contract PumpItFaxtInterface is Ownable {
-    ERC20BondingCurve[] private _tokens;
     mapping(address => bool) private _validTokens;
     IERC20 private frax;
-    uint256 private _deploymentCharge;
+    uint256 private _deploymentCharge = 0;
 
-    event Launch(address);
+    event Launch(address indexed creator, address token);
 
     constructor(address fraxAddress_) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
@@ -38,10 +37,9 @@ contract PumpItFaxtInterface is Ownable {
         );
         address newTokenAddress = address(newToken);
 
-        _tokens.push(newToken);
         _validTokens[newTokenAddress] = true;
 
-        emit Launch(newTokenAddress);
+        emit Launch(msg.sender, newTokenAddress);
 
         return newTokenAddress;
     }
@@ -50,7 +48,7 @@ contract PumpItFaxtInterface is Ownable {
         return _deploymentCharge;
     }
 
-    function changeDeploymentCharge(uint256 newCharge_) public onlyOwner {
+    function setDeploymentCharge(uint256 newCharge_) public onlyOwner {
         _deploymentCharge = newCharge_;
     }
 
