@@ -28,6 +28,9 @@ describe("PumpItFaxtInterface", function () {
     await frax.connect(owner).transfer(acc1.address, BigInt(50_000) * ONE_FRAX);
     await frax.connect(owner).transfer(acc2.address, BigInt(50_000) * ONE_FRAX);
 
+    await pumpItFaxt.connect(owner).setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX);
+    await pumpItFaxt.connect(owner).setMaximumInitialTokenSupply(BigInt(1_000_000_000) * ONE_FRAX);
+
     return {
       pumpItFaxt,
       frax,

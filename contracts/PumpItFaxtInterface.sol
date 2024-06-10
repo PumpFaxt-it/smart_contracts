@@ -31,11 +31,11 @@ contract PumpItFaxtInterface is Ownable {
         );
 
         require(
-            _minimumInitialSupply <= initialSupply_,
+            _minimumInitialSupply <= initialSupply_ * (10 ** 18),
             "Not enough initial supply"
         );
         require(
-            initialSupply_ <= _maximumInitialSupply,
+            initialSupply_  * (10 ** 18) <= _maximumInitialSupply,
             "Initial supply must be less that maximum allowed supply"
         );
 
