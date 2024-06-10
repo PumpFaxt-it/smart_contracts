@@ -2,16 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Roles.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ERC20BondingCurve.sol";
 
 contract PumpItFaxtInterface is Ownable {
-    using Roles for Roles.Role;
-
-    Roles.Role private _admins;
-
     mapping(address => bool) private _validTokens;
     IERC20 private frax;
     uint256 private _deploymentCharge = 0;
@@ -59,6 +54,14 @@ contract PumpItFaxtInterface is Ownable {
         emit Launch(msg.sender, newTokenAddress);
 
         return newTokenAddress;
+    }
+
+    function minimumInitialSupply() public view returns (uint256) {
+        return _minimumInitialSupply;
+    }
+
+    function maximumInitialSupply() public view returns (uint256) {
+        return _maximumInitialSupply;
     }
 
     function deploymentCharge() public view returns (uint256) {

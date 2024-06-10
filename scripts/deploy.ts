@@ -1,16 +1,29 @@
-import { ethers } from "hardhat";
 import "dotenv/config";
+import { ethers } from "hardhat";
 import { consoleColor } from "../utils";
+import { JsonRpcProvider } from "ethers";
 
 const ONE_FRAX = BigInt(Math.pow(10, 18));
 
 async function main() {
   if (!process.env.DEPLOYER_PRIVATE_KEY) throw "Provide deployer private key";
 
-  const deployer = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY);
+  const provider = new JsonRpcProvider("http://127.0.0.1:8545/");
+  const deployer = new ethers.Wallet(
+    process.env.DEPLOYER_PRIVATE_KEY,
+    provider
+  );
+
+  const [ethHolder] = await ethers.getSigners();
+  const tx = await ethHolder.sendTransaction({
+    to: deployer.address,
+    value: ethers.parseUnits("100", "ether"),
+  });
+  await tx.wait();
 
   const DummyFrax = await ethers.getContractFactory("DummyFrax");
   const frax = await DummyFrax.deploy();
+  await frax.waitForDeployment();
 
   console.log(
     consoleColor("yellow"),
@@ -24,15 +37,11 @@ async function main() {
   const PumpItFaxtInterface = await ethers.getContractFactory(
     "PumpItFaxtInterface"
   );
+
   const pumpItFaxt = await PumpItFaxtInterface.connect(deployer).deploy(
     await frax.getAddress()
   );
-
-  await pumpItFaxt.setDeploymentCharge(BigInt(2) * ONE_FRAX);
-  await pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX);
-  await pumpItFaxt.setMaximumInitialTokenSupply(
-    BigInt(1_000_000_000) * ONE_FRAX
-  );
+  await pumpItFaxt.waitForDeployment();
 
   console.log(
     consoleColor("yellow"),
@@ -42,6 +51,16 @@ async function main() {
     consoleColor("cyan"),
     await pumpItFaxt.getAddress()
   );
+
+  await (await pumpItFaxt.setDeploymentCharge(BigInt(2) * ONE_FRAX)).wait();
+  await (
+    await pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX)
+  ).wait();
+  await (
+    await pumpItFaxt.setMaximumInitialTokenSupply(
+      BigInt(1_000_000_000) * ONE_FRAX
+    )
+  ).wait();
 
   console.log(consoleColor("white"));
 }
