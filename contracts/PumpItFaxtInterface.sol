@@ -27,7 +27,8 @@ contract PumpItFaxtInterface is Ownable {
         string calldata image_
     ) public returns (address) {
         require(
-            frax.transferFrom(msg.sender, address(this), _deploymentCharge)
+            frax.transferFrom(msg.sender, address(this), _deploymentCharge),
+            "Unable to transfer tokens"
         );
 
         require(
@@ -35,7 +36,7 @@ contract PumpItFaxtInterface is Ownable {
             "Not enough initial supply"
         );
         require(
-            initialSupply_  * (10 ** 18) <= _maximumInitialSupply,
+            initialSupply_ * (10 ** 18) <= _maximumInitialSupply,
             "Initial supply must be less that maximum allowed supply"
         );
 
