@@ -38,8 +38,9 @@ async function main() {
     "PumpItFaxtInterface"
   );
 
+  const fraxAddr = await frax.getAddress();
   const pumpItFaxt = await PumpItFaxtInterface.connect(deployer).deploy(
-    await frax.getAddress()
+    fraxAddr
   );
   await pumpItFaxt.waitForDeployment();
 

@@ -8,7 +8,7 @@ import "./ERC20BondingCurve.sol";
 
 contract PumpItFaxtInterface is Ownable {
     mapping(address => bool) private _validTokens;
-    IERC20 private frax;
+    IERC20 public frax;
     uint256 private _deploymentCharge = 0;
 
     uint256 private _minimumInitialSupply = 0;
@@ -26,10 +26,10 @@ contract PumpItFaxtInterface is Ownable {
         string calldata symbol_,
         string calldata image_
     ) public returns (address) {
-        require(
-            frax.transferFrom(msg.sender, address(this), _deploymentCharge),
-            "Unable to transfer tokens"
-        );
+        // require(
+        //     frax.transferFrom(msg.sender, address(this), _deploymentCharge),
+        //     "Unable to transfer tokens"
+        // );
 
         require(
             _minimumInitialSupply <= initialSupply_ * (10 ** 18),
