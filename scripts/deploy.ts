@@ -2,7 +2,7 @@ import "dotenv/config";
 import { ethers } from "hardhat";
 import { consoleColor } from "../utils";
 import { JsonRpcProvider } from "ethers";
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 
 // import "../../client/src/contracts/frax"
 const ONE_FRAX = BigInt(Math.pow(10, 18));
@@ -67,12 +67,26 @@ async function main() {
 
   console.log(consoleColor("white"));
 
+  const fraxAbi = JSON.stringify(
+    JSON.parse(
+      readFileSync("./artifacts/contracts/DummyFrax.sol/DummyFrax.json", "utf8")
+    ).abi
+  );
+  const pumpItFaxtAbi = JSON.stringify(
+    JSON.parse(
+      readFileSync(
+        "./artifacts/contracts/PumpItFaxtInterface.sol/PumpItFaxtInterface.json",
+        "utf8"
+      )
+    ).abi
+  );
+
   writeFileSync(
     "../client/src/contracts/frax.ts",
     `
     const address = "${await frax.getAddress()}" as const; 
 
-    const abi = ${DummyFrax.interface.formatJson()} as const; 
+    const abi = ${fraxAbi} as const; 
     
     export default {address, abi}`
   );
@@ -82,17 +96,17 @@ async function main() {
     `
     const address = "${await pumpItFaxt.getAddress()}" as const; 
 
-    const abi = ${PumpItFaxtInterface.interface.formatJson()} as const; 
+    const abi = ${pumpItFaxtAbi} as const; 
     
     export default {address, abi}`
   );
-  
+
   writeFileSync(
     "../server/contracts/frax.ts",
     `
     const address = "${await frax.getAddress()}" as const; 
 
-    const abi = ${DummyFrax.interface.formatJson()} as const; 
+    const abi = ${fraxAbi} as const; 
     
     export default {address, abi}`
   );
@@ -102,7 +116,7 @@ async function main() {
     `
     const address = "${await pumpItFaxt.getAddress()}" as const; 
 
-    const abi = ${PumpItFaxtInterface.interface.formatJson()} as const; 
+    const abi = ${pumpItFaxtAbi} as const; 
     
     export default {address, abi}`
   );
