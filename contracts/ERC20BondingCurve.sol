@@ -4,15 +4,14 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./ERC20withImage.sol";
+import "./ERC20withMetadata.sol";
 import "./PumpItFaxtInterface.sol";
 
-contract ERC20BondingCurve is ERC20withImage {
+contract ERC20BondingCurve is ERC20withMetadata {
     IERC20 private tradedToken;
     IERC20 private frax;
     PumpItFaxtInterface private pumpItFaxt;
 
-    address private _creator;
     uint256 private _reserve;
     uint256 private _virtualReserve;
     uint256 private _supply;
@@ -32,7 +31,8 @@ contract ERC20BondingCurve is ERC20withImage {
         string memory image_,
         address fraxAddress_
     )
-        ERC20withImage(
+        ERC20withMetadata(
+            creator_,
             (initialSupply_ * 10000) / 5771,
             name_,
             symbol_,
@@ -44,7 +44,6 @@ contract ERC20BondingCurve is ERC20withImage {
         frax = IERC20(fraxAddress_);
         pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
-        _creator = creator_;
         _virtualReserve = _reserveThreshold * 2;
         updateReserveAndSupply();
     }
