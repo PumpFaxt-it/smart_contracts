@@ -88,7 +88,7 @@ async function main() {
   );
   
   writeFileSync(
-    "../server/src/contracts/frax.ts",
+    "../server/contracts/frax.ts",
     `
     const address = "${await frax.getAddress()}" as const; 
 
@@ -98,7 +98,7 @@ async function main() {
   );
 
   writeFileSync(
-    "../server/src/contracts/pumpItFaxtInterface.ts",
+    "../server/contracts/pumpItFaxtInterface.ts",
     `
     const address = "${await pumpItFaxt.getAddress()}" as const; 
 
