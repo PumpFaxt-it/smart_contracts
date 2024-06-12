@@ -2,7 +2,9 @@ import "dotenv/config";
 import { ethers } from "hardhat";
 import { consoleColor } from "../utils";
 import { JsonRpcProvider } from "ethers";
+import { writeFileSync } from "fs";
 
+// import "../../client/src/contracts/frax"
 const ONE_FRAX = BigInt(Math.pow(10, 18));
 
 async function main() {
@@ -64,6 +66,46 @@ async function main() {
   ).wait();
 
   console.log(consoleColor("white"));
+
+  writeFileSync(
+    "../client/src/contracts/frax.ts",
+    `
+    const address = "${await frax.getAddress()}" as const; 
+
+    const abi = ${DummyFrax.interface.formatJson()} as const; 
+    
+    export default {address, abi}`
+  );
+
+  writeFileSync(
+    "../client/src/contracts/pumpItFaxtInterface.ts",
+    `
+    const address = "${await pumpItFaxt.getAddress()}" as const; 
+
+    const abi = ${PumpItFaxtInterface.interface.formatJson()} as const; 
+    
+    export default {address, abi}`
+  );
+  
+  writeFileSync(
+    "../server/src/contracts/frax.ts",
+    `
+    const address = "${await frax.getAddress()}" as const; 
+
+    const abi = ${DummyFrax.interface.formatJson()} as const; 
+    
+    export default {address, abi}`
+  );
+
+  writeFileSync(
+    "../server/src/contracts/pumpItFaxtInterface.ts",
+    `
+    const address = "${await pumpItFaxt.getAddress()}" as const; 
+
+    const abi = ${PumpItFaxtInterface.interface.formatJson()} as const; 
+    
+    export default {address, abi}`
+  );
 }
 
 main()
