@@ -24,7 +24,8 @@ contract PumpItFaxtInterface is Ownable {
         uint256 initialSupply_,
         string calldata name_,
         string calldata symbol_,
-        string calldata image_
+        string calldata image_,
+        string calldata metadata_
     ) public returns (address) {
         // require(
         //     frax.transferFrom(msg.sender, address(this), _deploymentCharge),
@@ -46,6 +47,7 @@ contract PumpItFaxtInterface is Ownable {
             name_,
             symbol_,
             image_,
+            metadata_,
             address(frax)
         );
         address newTokenAddress = address(newToken);

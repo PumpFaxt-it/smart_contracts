@@ -65,6 +65,14 @@ async function main() {
     )
   ).wait();
 
+  await pumpItFaxt.deployNewToken(
+    69_420_420,
+    "Frax Doge",
+    "FXD",
+    "https://fraxdoge.xyz/assets/img1-CKTqI1qj.jpeg",
+    JSON.stringify({ website: "fraxdoge.xyz", telegram : "fxd" })
+  );
+
   console.log(consoleColor("white"));
 
   const fraxAbi = JSON.stringify(
@@ -80,6 +88,14 @@ async function main() {
       )
     ).abi
   );
+  const tokenAbi = JSON.stringify(
+    JSON.parse(
+      readFileSync(
+        "./artifacts/contracts/ERC20BondingCurve.sol/ERC20BondingCurve.json",
+        "utf8"
+      )
+    ).abi
+  );
 
   writeFileSync(
     "../client/src/contracts/frax.ts",
@@ -90,7 +106,6 @@ async function main() {
     
     export default {address, abi}`
   );
-
   writeFileSync(
     "../client/src/contracts/pumpItFaxtInterface.ts",
     `
@@ -99,6 +114,13 @@ async function main() {
     const abi = ${pumpItFaxtAbi} as const; 
     
     export default {address, abi}`
+  );
+  writeFileSync(
+    "../client/src/contracts/token.ts",
+    `
+    const abi = ${tokenAbi} as const; 
+    
+    export default {abi}`
   );
 
   writeFileSync(
@@ -110,7 +132,6 @@ async function main() {
     
     export default {address, abi}`
   );
-
   writeFileSync(
     "../server/contracts/pumpItFaxtInterface.ts",
     `
@@ -119,6 +140,13 @@ async function main() {
     const abi = ${pumpItFaxtAbi} as const; 
     
     export default {address, abi}`
+  );
+  writeFileSync(
+    "../server/contracts/token.ts",
+    `
+    const abi = ${tokenAbi} as const; 
+    
+    export default {abi}`
   );
 }
 

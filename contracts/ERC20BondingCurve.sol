@@ -29,6 +29,7 @@ contract ERC20BondingCurve is ERC20withMetadata {
         string memory name_,
         string memory symbol_,
         string memory image_,
+        string memory metadata_,
         address fraxAddress_
     )
         ERC20withMetadata(
@@ -37,7 +38,7 @@ contract ERC20BondingCurve is ERC20withMetadata {
             name_,
             symbol_,
             image_,
-            address(this)
+            metadata_
         )
     {
         tradedToken = IERC20(address(this));
