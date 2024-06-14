@@ -70,7 +70,12 @@ async function main() {
     "Frax Doge",
     "FXD",
     "https://fraxdoge.xyz/assets/img1-CKTqI1qj.jpeg",
-    JSON.stringify({ website: "fraxdoge.xyz", telegram : "fxd" })
+    JSON.stringify({
+      website: "fraxdoge.xyz",
+      telegram: "fxd",
+      description:
+        "Ye pata nai kya to kutta kutta laga rakha hai. bakchodi karva lo bas insaano se. chand pe kutta bhejenge, usko saas leni thode na ati hai, mar jaega vo to.",
+    })
   );
 
   console.log(consoleColor("white"));
