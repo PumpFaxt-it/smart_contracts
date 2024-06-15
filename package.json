@@ -3,6 +3,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "dev": "hardhat run scripts/deploy.ts --network localhost",
+    "testnet": "hardhat run scripts/deploy.ts --network testnet",
     "deploy": "hardhat run scripts/deploy.ts",
     "localnode": "hardhat node"
   },

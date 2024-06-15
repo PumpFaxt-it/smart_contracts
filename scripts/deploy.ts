@@ -11,17 +11,17 @@ async function main() {
   if (!process.env.DEPLOYER_PRIVATE_KEY) throw "Provide deployer private key";
 
   const provider = new JsonRpcProvider("http://127.0.0.1:8545/");
-  const deployer = new ethers.Wallet(
-    process.env.DEPLOYER_PRIVATE_KEY,
-    provider
-  );
+  // const deployer = new ethers.Wallet(
+  //   process.env.DEPLOYER_PRIVATE_KEY,
+  //   provider
+  // );
 
-  const [ethHolder] = await ethers.getSigners();
-  const tx = await ethHolder.sendTransaction({
-    to: deployer.address,
-    value: ethers.parseUnits("100", "ether"),
-  });
-  await tx.wait();
+  const [deployer] = await ethers.getSigners();
+  // const tx = await ethHolder.sendTransaction({
+  //   to: deployer.address,
+  //   value: ethers.parseUnits("100", "ether"),
+  // });
+  // await tx.wait();
 
   const DummyFrax = await ethers.getContractFactory("DummyFrax");
   const frax = await DummyFrax.deploy();
@@ -41,7 +41,7 @@ async function main() {
   );
 
   const fraxAddr = await frax.getAddress();
-  const pumpItFaxt = await PumpItFaxtInterface.connect(deployer).deploy(
+  const pumpItFaxt = await PumpItFaxtInterface.deploy(
     fraxAddr
   );
   await pumpItFaxt.waitForDeployment();
@@ -65,18 +65,18 @@ async function main() {
     )
   ).wait();
 
-  await pumpItFaxt.deployNewToken(
-    69_420_420,
-    "Frax Doge",
-    "FXD",
-    "https://fraxdoge.xyz/assets/img1-CKTqI1qj.jpeg",
-    JSON.stringify({
-      website: "fraxdoge.xyz",
-      telegram: "fxd",
-      description:
-        "Ye pata nai kya to kutta kutta laga rakha hai. bakchodi karva lo bas insaano se. chand pe kutta bhejenge, usko saas leni thode na ati hai, mar jaega vo to.",
-    })
-  );
+  // await pumpItFaxt.deployNewToken(
+  //   69_420_420,
+  //   "Frax Doge",
+  //   "FXD",
+  //   "https://fraxdoge.xyz/assets/img1-CKTqI1qj.jpeg",
+  //   JSON.stringify({
+  //     website: "fraxdoge.xyz",
+  //     telegram: "fxd",
+  //     description:
+  //       "Ye pata nai kya to kutta kutta laga rakha hai. bakchodi karva lo bas insaano se. chand pe kutta bhejenge, usko saas leni thode na ati hai, mar jaega vo to.",
+  //   })
+  // );
 
   console.log(consoleColor("white"));
 
