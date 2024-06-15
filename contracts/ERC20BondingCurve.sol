@@ -110,14 +110,8 @@ contract ERC20BondingCurve is ERC20withMetadata {
     function buy(uint256 amount_) public {
         uint256 cost = calculateBuyCostByTokenAmount(amount_);
 
-        require(
-            frax.transferFrom(msg.sender, address(this), cost),
-            "FRAX transfer failed"
-        );
-        require(
-            tradedToken.transfer(msg.sender, amount_),
-            "Token transfer failed"
-        );
+        frax.transferFrom(msg.sender, address(this), cost);
+        tradedToken.transfer(msg.sender, amount_);
 
         updateReserveAndSupply();
         emit Buy(msg.sender, amount_, cost);
@@ -126,11 +120,8 @@ contract ERC20BondingCurve is ERC20withMetadata {
     function sell(uint256 amount_) public {
         uint256 refund = calculateSellRefundByTokenAmount(amount_);
 
-        require(
-            tradedToken.transferFrom(msg.sender, address(this), amount_),
-            "Token transfer failed"
-        );
-        require(frax.transfer(msg.sender, refund), "FRAX transfer failed");
+        tradedToken.transferFrom(msg.sender, address(this), amount_);
+        frax.transfer(msg.sender, refund);
 
         updateReserveAndSupply();
         emit Sell(msg.sender, amount_, refund);

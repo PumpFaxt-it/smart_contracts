@@ -27,10 +27,7 @@ contract PumpItFaxtInterface is Ownable {
         string calldata image_,
         string calldata metadata_
     ) public returns (address) {
-        // require(
-        //     frax.transferFrom(msg.sender, address(this), _deploymentCharge),
-        //     "Unable to transfer tokens"
-        // );
+        frax.transferFrom(msg.sender, address(this), _deploymentCharge);
 
         require(
             _minimumInitialSupply <= initialSupply_ * (10 ** 18),
