@@ -21,7 +21,7 @@ contract ERC20BondingCurve is ERC20withMetadata {
 
     event Buy(address indexed buyer, uint256 amount, uint256 cost);
     event Sell(address indexed seller, uint256 amount, uint256 refund);
-    event PriceChange(uint256 timestamp, uint256 price, uint256 marketCap);
+    event PriceChange(uint256 time, uint256 value, uint256 marketCap);
 
     constructor(
         address creator_,

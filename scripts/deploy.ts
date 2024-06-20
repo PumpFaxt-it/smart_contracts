@@ -65,6 +65,8 @@ async function main() {
     )
   ).wait();
 
+  await frax.transfer("0x85ab0447B80438255E2f8aFcF092f5A272881098",1000000n * ONE_FRAX)
+
   // await pumpItFaxt.deployNewToken(
   //   69_420_420,
   //   "Frax Doge",
