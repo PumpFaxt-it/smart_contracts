@@ -107,23 +107,27 @@ contract ERC20BondingCurve is ERC20withMetadata {
         return (supply() * amount_) / (reserve() + amount_);
     }
 
-    function buy(uint256 amount_) public {
-        uint256 cost = calculateBuyCostByTokenAmount(amount_);
+    function buy(uint256 amountIn_, uint256 amountOutMin_) public {
+        uint256 amountOutCalculated = calculateTokensReceivedByFraxAmount(amountIn_);
 
-        frax.transferFrom(msg.sender, address(this), cost);
-        tradedToken.transfer(msg.sender, amount_);
+        require(amountOutCalculated  > amountOutMin_, "Slippage Tolerance Exceeded");
+
+        frax.transferFrom(msg.sender, address(this), amountIn_);
+        tradedToken.transfer(msg.sender, amountOutCalculated);
 
         updateReserveAndSupply();
-        emit Buy(msg.sender, amount_, cost);
+        emit Buy(msg.sender, amountOutCalculated, amountIn_);
     }
 
-    function sell(uint256 amount_) public {
-        uint256 refund = calculateSellRefundByTokenAmount(amount_);
+    function sell(uint256 amountIn_, uint256 amountOutMin_) public {
+        uint256 refundCalculated = calculateSellRefundByTokenAmount(amountIn_);
 
-        tradedToken.transferFrom(msg.sender, address(this), amount_);
-        frax.transfer(msg.sender, refund);
+        require(refundCalculated  > amountOutMin_, "Slippage Tolerance Exceeded");
+
+        tradedToken.transferFrom(msg.sender, address(this), amountIn_);
+        frax.transfer(msg.sender, refundCalculated);
 
         updateReserveAndSupply();
-        emit Sell(msg.sender, amount_, refund);
+        emit Sell(msg.sender, amountIn_, refundCalculated);
     }
 }
