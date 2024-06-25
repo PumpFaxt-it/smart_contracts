@@ -10,6 +10,7 @@ contract PumpItFaxtInterface is Ownable {
     mapping(address => bool) private _validTokens;
     IERC20 public frax;
     uint256 private _deploymentCharge = 0;
+    uint256 private _thresholdForDex = 0;
 
     uint256 private _minimumInitialSupply = 0;
     uint256 private _maximumInitialSupply = 0;

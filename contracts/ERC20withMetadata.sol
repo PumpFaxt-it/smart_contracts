@@ -9,6 +9,7 @@ contract ERC20withMetadata is ERC20 {
     address private _creator;
     string private _metadata;
     uint8 private _decimals = 18;
+    uint256 private _createdBlock;
 
     modifier onlyCreator() {
         require(msg.sender == _creator, "Only token creator is authorized");
@@ -23,6 +24,7 @@ contract ERC20withMetadata is ERC20 {
         string memory image_,
         string memory metadata_
     ) ERC20(name_, symbol_) {
+        _createdBlock = block.number;
         _creator = creator_;
         _image = image_;
         _metadata = metadata_;
@@ -39,6 +41,10 @@ contract ERC20withMetadata is ERC20 {
 
     function creator() public view virtual returns (address) {
         return _creator;
+    }
+    
+    function createdBlock() public view virtual returns (uint256) {
+        return _createdBlock;
     }
 
     function metadata() public view virtual returns (string memory) {
