@@ -19,8 +19,18 @@ contract ERC20BondingCurve is ERC20withMetadata {
 
     uint256 private _reserveThreshold = 69420 * (10 ** 18);
 
-    event Buy(address indexed buyer, uint256 amount, uint256 cost);
-    event Sell(address indexed seller, uint256 amount, uint256 refund);
+    event Buy(
+        uint256 time,
+        address indexed buyer,
+        uint256 amount,
+        uint256 cost
+    );
+    event Sell(
+        uint256 time,
+        address indexed seller,
+        uint256 amount,
+        uint256 refund
+    );
     event PriceChange(uint256 time, uint256 value, uint256 marketCap);
 
     constructor(
@@ -108,26 +118,34 @@ contract ERC20BondingCurve is ERC20withMetadata {
     }
 
     function buy(uint256 amountIn_, uint256 amountOutMin_) public {
-        uint256 amountOutCalculated = calculateTokensReceivedByFraxAmount(amountIn_);
+        uint256 amountOutCalculated = calculateTokensReceivedByFraxAmount(
+            amountIn_
+        );
 
-        require(amountOutCalculated  > amountOutMin_, "Slippage Tolerance Exceeded");
+        require(
+            amountOutCalculated > amountOutMin_,
+            "Slippage Tolerance Exceeded"
+        );
 
         frax.transferFrom(msg.sender, address(this), amountIn_);
         tradedToken.transfer(msg.sender, amountOutCalculated);
 
         updateReserveAndSupply();
-        emit Buy(msg.sender, amountOutCalculated, amountIn_);
+        emit Buy(block.timestamp, msg.sender, amountOutCalculated, amountIn_);
     }
 
     function sell(uint256 amountIn_, uint256 amountOutMin_) public {
         uint256 refundCalculated = calculateSellRefundByTokenAmount(amountIn_);
 
-        require(refundCalculated  > amountOutMin_, "Slippage Tolerance Exceeded");
+        require(
+            refundCalculated > amountOutMin_,
+            "Slippage Tolerance Exceeded"
+        );
 
         tradedToken.transferFrom(msg.sender, address(this), amountIn_);
         frax.transfer(msg.sender, refundCalculated);
 
         updateReserveAndSupply();
-        emit Sell(msg.sender, amountIn_, refundCalculated);
+        emit Sell(block.timestamp, msg.sender, amountIn_, refundCalculated);
     }
 }
