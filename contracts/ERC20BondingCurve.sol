@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./ERC20withMetadata.sol";
 import "./PumpItFaxtInterface.sol";
+import "./RAPairDeployer.sol";
 
-contract ERC20BondingCurve is ERC20withMetadata {
+contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
     IERC20 private tradedToken;
     IERC20 private frax;
     PumpItFaxtInterface private pumpItFaxt;
@@ -40,8 +41,10 @@ contract ERC20BondingCurve is ERC20withMetadata {
         string memory symbol_,
         string memory image_,
         string memory metadata_,
-        address fraxAddress_
+        address fraxAddress_,
+        address RAPairFactoryAddress_
     )
+        RAPairDeployer(RAPairFactoryAddress_)
         ERC20withMetadata(
             creator_,
             (initialSupply_ * 10000) / 5771,
@@ -67,6 +70,12 @@ contract ERC20BondingCurve is ERC20withMetadata {
         if (_reserve >= _reserveThreshold * 3 && _virtualReserve > 0) {
             _virtualReserve = 0;
             _burn(address(this), (_supply * 2) / 3);
+            createSelfPairWithBalanceAndBurnLP(
+                address(this),
+                address(frax),
+                _supply,
+                _reserve
+            );
             updateReserveAndSupply();
         }
 
