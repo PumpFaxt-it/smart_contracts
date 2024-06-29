@@ -8,10 +8,20 @@ import "./ERC20withMetadata.sol";
 import "./PumpItFaxtInterface.sol";
 import "./RAPairDeployer.sol";
 
+interface IRARouter {
+    function getAmountOut(
+        uint256 amountIn,
+        address tokenIn,
+        address tokenOut
+    ) external view returns (uint256);
+}
+
 contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
     IERC20 private tradedToken;
     IERC20 private frax;
     PumpItFaxtInterface private pumpItFaxt;
+    IRARouter private raRouter =
+        IRARouter(0xAAA45c8F5ef92a000a121d102F4e89278a711Faa);
 
     uint256 private _reserve;
     uint256 private _virtualReserve;
@@ -19,6 +29,9 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
     uint256 private _displayPrice;
 
     uint256 private _reserveThreshold = 69420 * (10 ** 18);
+    uint256 private _finalSupply;
+
+    bool public tradingEnabled = true;
 
     event Buy(
         uint256 time,
@@ -34,6 +47,11 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
     );
     event PriceChange(uint256 time, uint256 value, uint256 marketCap);
 
+    modifier whileTradable() {
+        require(tradingEnabled, "Trading can not be done now");
+        _;
+    }
+
     constructor(
         address creator_,
         uint256 initialSupply_,
@@ -41,10 +59,8 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
         string memory symbol_,
         string memory image_,
         string memory metadata_,
-        address fraxAddress_,
-        address RAPairFactoryAddress_
+        address fraxAddress_
     )
-        RAPairDeployer(RAPairFactoryAddress_)
         ERC20withMetadata(
             creator_,
             (initialSupply_ * 10000) / 5771,
@@ -58,6 +74,7 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
         frax = IERC20(fraxAddress_);
         pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
+        _finalSupply = initialSupply_;
         _virtualReserve = _reserveThreshold * 2;
         updateReserveAndSupply();
     }
@@ -87,11 +104,28 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
     }
 
     function tokenPrice() public view returns (uint256) {
-        return _displayPrice;
+        if (tradingEnabled) return _displayPrice;
+        else
+            return
+                raRouter.getAmountOut(
+                    1 * (10 ** 18),
+                    address(this),
+                    address(frax)
+                ) * totalSupply();
     }
 
     function marketCap() public view returns (uint256) {
-        return frax.balanceOf(address(this));
+        if (tradingEnabled)
+            return
+                (frax.balanceOf(address(this)) /
+                    (supply() - (1 * (10 ** decimals())))) * _finalSupply;
+        else
+            return
+                raRouter.getAmountOut(
+                    1 * (10 ** 18),
+                    address(this),
+                    address(frax)
+                ) * totalSupply();
     }
 
     function reserve() public view returns (uint256) {
@@ -104,29 +138,32 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
 
     function calculateBuyCostByTokenAmount(
         uint256 amount_
-    ) public view returns (uint256) {
+    ) public view whileTradable returns (uint256) {
         return (reserve() * amount_) / (supply() - amount_);
     }
 
     function calculateSellRefundByTokenAmount(
         uint256 amount_
-    ) public view returns (uint256) {
+    ) public view whileTradable returns (uint256) {
         return (reserve() * amount_) / (supply() + amount_);
     }
 
     function calculateTokensByFraxRefundAmount(
         uint256 amount_
-    ) public view returns (uint256) {
+    ) public view whileTradable returns (uint256) {
         return (supply() * amount_) / (reserve() - amount_);
     }
 
     function calculateTokensReceivedByFraxAmount(
         uint256 amount_
-    ) public view returns (uint256) {
+    ) public view whileTradable returns (uint256) {
         return (supply() * amount_) / (reserve() + amount_);
     }
 
-    function buy(uint256 amountIn_, uint256 amountOutMin_) public {
+    function buy(
+        uint256 amountIn_,
+        uint256 amountOutMin_
+    ) public whileTradable {
         uint256 amountOutCalculated = calculateTokensReceivedByFraxAmount(
             amountIn_
         );
@@ -143,7 +180,10 @@ contract ERC20BondingCurve is ERC20withMetadata, RAPairDeployer {
         emit Buy(block.timestamp, msg.sender, amountOutCalculated, amountIn_);
     }
 
-    function sell(uint256 amountIn_, uint256 amountOutMin_) public {
+    function sell(
+        uint256 amountIn_,
+        uint256 amountOutMin_
+    ) public whileTradable {
         uint256 refundCalculated = calculateSellRefundByTokenAmount(amountIn_);
 
         require(

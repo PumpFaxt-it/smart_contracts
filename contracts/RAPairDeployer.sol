@@ -16,11 +16,7 @@ interface IRAPairFactory {
 }
 
 contract RAPairDeployer {
-    IRAPairFactory private _pairFactory;
-
-    constructor(address RAPairFactoryAddress_) {
-        _pairFactory = IRAPairFactory(RAPairFactoryAddress_);
-    }
+    IRAPairFactory private _pairFactory = IRAPairFactory(0xAAA16c016BF556fcD620328f0759252E29b1AB57);
 
     function createSelfPairWithBalanceAndBurnLP(
         address tokenA,

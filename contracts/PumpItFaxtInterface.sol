@@ -16,15 +16,18 @@ contract PumpItFaxtInterface is Ownable {
     uint256 private _maximumInitialSupply = 0;
 
     address private _RAPairFactoryAddress;
+    address private _RARouterAddress;
 
     event Launch(address indexed creator, address token);
 
     constructor(
         address fraxAddress_,
-        address RAPairFactoryAddress_
+        address RAPairFactoryAddress_,
+        address RARouterAddress_
     ) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
         _RAPairFactoryAddress = RAPairFactoryAddress_;
+        _RARouterAddress = RARouterAddress_;
     }
 
     function deployNewToken(
@@ -52,8 +55,7 @@ contract PumpItFaxtInterface is Ownable {
             symbol_,
             image_,
             metadata_,
-            address(frax),
-            _RAPairFactoryAddress
+            address(frax)
         );
         address newTokenAddress = address(newToken);
 
