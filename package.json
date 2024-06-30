@@ -4,6 +4,7 @@
     "test": "hardhat test",
     "dev": "hardhat run scripts/deploy.ts --network localhost",
     "testnet": "hardhat run scripts/deploy.ts --network testnet",
+    "mainnet": "hardhat run scripts/deploy.ts --network fraxtal",
     "deploy": "hardhat run scripts/deploy.ts",
     "localnode": "hardhat node"
   },
