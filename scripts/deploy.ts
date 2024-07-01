@@ -40,11 +40,7 @@ async function main() {
     "0xAAA16c016BF556fcD620328f0759252E29b1AB57",
     "0xAAA45c8F5ef92a000a121d102F4e89278a711Faa"
   );
-  const usernameRental = await UsernameRental.deploy(fraxAddr);
-
   await pumpItFaxt.waitForDeployment();
-  await usernameRental.waitForDeployment();
-
   console.log(
     consoleColor("yellow"),
     "PumpItFaxtInterface",
@@ -54,7 +50,21 @@ async function main() {
     await pumpItFaxt.getAddress()
   );
 
-  await (await pumpItFaxt.setDeploymentCharge(BigInt(2) * ONE_FRAX)).wait();
+  const usernameRental = await UsernameRental.deploy(fraxAddr);
+  await usernameRental.waitForDeployment();
+  console.log(
+    consoleColor("yellow"),
+    "UsernameRental",
+    consoleColor("white"),
+    "deployed to :",
+    consoleColor("cyan"),
+    await usernameRental.getAddress()
+  );
+
+  const deploymentCharge = 2
+  await (await pumpItFaxt.setDeploymentCharge(BigInt(deploymentCharge) * ONE_FRAX)).wait();
+  console.log("Deployment Charge set to : ", deploymentCharge);
+  
   await (
     await pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX)
   ).wait();

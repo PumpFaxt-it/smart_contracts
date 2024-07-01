@@ -41,7 +41,7 @@ contract UsernameRental is Ownable {
     }
 
     function checkUsernameAvailability(
-        address user_
+        string calldata username_
     ) public view returns (bool) {
         if (
             _availabilityMapping[username_] == address(0) ||
