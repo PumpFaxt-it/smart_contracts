@@ -40,6 +40,16 @@ contract UsernameRental is Ownable {
         }
     }
 
+    function checkUsernameAvailability(
+        address user_
+    ) public view returns (bool) {
+        if (
+            _availabilityMapping[username_] == address(0) ||
+            _expiryMapping[_availabilityMapping[username_]] < block.timestamp
+        ) return false;
+        return true;
+    }
+
     function registerUsername(string memory username_) public {
         require(
             _expiryMapping[msg.sender] < block.timestamp,

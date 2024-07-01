@@ -65,7 +65,7 @@ async function main() {
   ).wait();
 
   await frax.transfer(
-    "0x85ab0447B80438255E2f8aFcF092f5A272881098",
+    "0x9B28C43d4526202c316b9ab0ECCB757C4D9c5155",
     1000000n * ONE_FRAX
   );
 

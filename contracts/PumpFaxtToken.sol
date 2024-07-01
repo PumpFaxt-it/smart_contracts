@@ -95,12 +95,13 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
                 _reserve
             );
             updateReserveAndSupply();
+            tradingEnabled = false;
         }
 
         emit PriceChange(
             block.timestamp,
             _displayPrice,
-            frax.balanceOf(address(this))
+            marketCap()
         );
     }
 
