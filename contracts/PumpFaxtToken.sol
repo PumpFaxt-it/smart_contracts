@@ -30,7 +30,6 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     uint256 private _displayPrice;
 
     uint256 private _reserveThreshold = 69420 * (10 ** 18);
-    uint256 private _finalSupply;
 
     bool public tradingEnabled = true;
 
@@ -75,7 +74,6 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         frax = IERC20(fraxAddress_);
         pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
-        _finalSupply = initialSupply_;
         _virtualReserve = _reserveThreshold * 2;
         updateReserveAndSupply();
     }
@@ -98,11 +96,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
             tradingEnabled = false;
         }
 
-        emit PriceChange(
-            block.timestamp,
-            _displayPrice,
-            marketCap()
-        );
+        emit PriceChange(block.timestamp, _displayPrice, marketCap());
     }
 
     function tokenPrice() public view returns (uint256) {
@@ -117,10 +111,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     }
 
     function marketCap() public view returns (uint256) {
-        if (tradingEnabled)
-            return
-                (frax.balanceOf(address(this)) /
-                    (supply() - (1 * (10 ** decimals())))) * _finalSupply;
+        if (tradingEnabled) return _displayPrice * totalSupply();
         else
             return
                 raRouter.getAmountOut(
