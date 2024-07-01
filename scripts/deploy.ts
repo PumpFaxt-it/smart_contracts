@@ -101,9 +101,9 @@ async function main() {
     );
   }
 
-  writeAbi("DummyFrax", frax, "frax");
-  writeAbi("PumpItFaxtInterface", pumpItFaxt, "pumpItFaxtInterface");
-  writeAbi("UsernameRental", usernameRental, "usernameRental");
+  await writeAbi("DummyFrax", frax, "frax");
+  await writeAbi("PumpItFaxtInterface", pumpItFaxt, "pumpItFaxtInterface");
+  await writeAbi("UsernameRental", usernameRental, "usernameRental");
 }
 
 main()

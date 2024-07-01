@@ -5,7 +5,6 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PumpFaxtToken.sol";
-import "./UsernameRental.sol";
 
 contract PumpItFaxtInterface is Ownable {
     mapping(address => bool) private _validTokens;
