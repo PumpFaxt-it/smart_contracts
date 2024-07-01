@@ -32,6 +32,7 @@ async function main() {
   const PumpItFaxtInterface = await ethers.getContractFactory(
     "PumpItFaxtInterface"
   );
+  const UsernameRental = await ethers.getContractFactory("UsernameRental");
 
   const fraxAddr = await frax.getAddress();
   const pumpItFaxt = await PumpItFaxtInterface.deploy(
@@ -39,7 +40,10 @@ async function main() {
     "0xAAA16c016BF556fcD620328f0759252E29b1AB57",
     "0xAAA45c8F5ef92a000a121d102F4e89278a711Faa"
   );
+  const usernameRental = await UsernameRental.deploy(fraxAddr);
+
   await pumpItFaxt.waitForDeployment();
+  await usernameRental.waitForDeployment();
 
   console.log(
     consoleColor("yellow"),
@@ -67,79 +71,39 @@ async function main() {
 
   console.log(consoleColor("white"));
 
-  const fraxAbi = JSON.stringify(
-    JSON.parse(
-      readFileSync("./artifacts/contracts/DummyFrax.sol/DummyFrax.json", "utf8")
-    ).abi
-  );
-  const pumpItFaxtAbi = JSON.stringify(
-    JSON.parse(
-      readFileSync(
-        "./artifacts/contracts/PumpItFaxtInterface.sol/PumpItFaxtInterface.json",
-        "utf8"
-      )
-    ).abi
-  );
-  const tokenAbi = JSON.stringify(
-    JSON.parse(
-      readFileSync(
-        "./artifacts/contracts/ERC20BondingCurve.sol/PumpFaxtToken.json",
-        "utf8"
-      )
-    ).abi
-  );
+  async function writeAbi(filename: string, contract: any, clientName: string) {
+    const abi = JSON.stringify(
+      JSON.parse(
+        readFileSync(
+          `./artifacts/contracts/${filename}.sol/${filename}.json`,
+          "utf8"
+        )
+      ).abi
+    );
 
-  writeFileSync(
-    "../client/src/contracts/frax.ts",
-    `
-    const address = "${await frax.getAddress()}" as const; 
+    writeFileSync(
+      `../client/src/contracts/${clientName}.ts`,
 
-    const abi = ${fraxAbi} as const; 
+      `const address = "${await contract.getAddress()}" as const; 
+
+    const abi = ${abi} as const; 
     
     export default {address, abi}`
-  );
-  writeFileSync(
-    "../client/src/contracts/pumpItFaxtInterface.ts",
-    `
-    const address = "${await pumpItFaxt.getAddress()}" as const; 
+    );
+    writeFileSync(
+      `../server/contracts/${clientName}.ts`,
 
-    const abi = ${pumpItFaxtAbi} as const; 
+      `const address = "${await contract.getAddress()}" as const; 
+
+    const abi = ${abi} as const; 
     
     export default {address, abi}`
-  );
-  writeFileSync(
-    "../client/src/contracts/token.ts",
-    `
-    const abi = ${tokenAbi} as const; 
-    
-    export default {abi}`
-  );
+    );
+  }
 
-  writeFileSync(
-    "../server/contracts/frax.ts",
-    `
-    const address = "${await frax.getAddress()}" as const; 
-
-    const abi = ${fraxAbi} as const; 
-    
-    export default {address, abi}`
-  );
-  writeFileSync(
-    "../server/contracts/pumpItFaxtInterface.ts",
-    `
-    const address = "${await pumpItFaxt.getAddress()}" as const; 
-
-    const abi = ${pumpItFaxtAbi} as const; 
-    
-    export default {address, abi}`
-  );
-  writeFileSync(
-    "../server/contracts/token.ts",
-    `
-    const abi = ${tokenAbi} as const; 
-    
-    export default {abi}`
-  );
+  writeAbi("DummyFrax", frax, "frax");
+  writeAbi("PumpItFaxtInterface", pumpItFaxt, "pumpItFaxtInterface");
+  writeAbi("UsernameRental", usernameRental, "usernameRental");
 }
 
 main()

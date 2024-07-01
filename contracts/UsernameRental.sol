@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -10,7 +10,7 @@ contract UsernameRental is Ownable {
     mapping(string => address) private _availabilityMapping;
 
     IERC20 private frax;
-    uint256 public fee = 5 * (10 ** 18); // Default fee in FRAX
+    uint256 public fee = 5 * (10 ** 18);
 
     event UsernameRegistered(
         address indexed user,
@@ -24,7 +24,7 @@ contract UsernameRental is Ownable {
     );
     event FeeUpdated(uint256 newFee);
 
-    constructor(address fraxAddress_) {
+    constructor(address fraxAddress_) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
     }
 

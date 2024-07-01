@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./PumpFaxtToken.sol";
 import "./UsernameRental.sol";
 
-contract PumpItFaxtInterface is Ownable, UsernameRental {
+contract PumpItFaxtInterface is Ownable {
     mapping(address => bool) private _validTokens;
     IERC20 public frax;
     uint256 private _deploymentCharge = 0;
@@ -25,7 +25,7 @@ contract PumpItFaxtInterface is Ownable, UsernameRental {
         address fraxAddress_,
         address RAPairFactoryAddress_,
         address RARouterAddress_
-    ) UsernameRental(fraxAddress_) {
+    ) Ownable(msg.sender) {
         frax = IERC20(fraxAddress_);
         _RAPairFactoryAddress = RAPairFactoryAddress_;
         _RARouterAddress = RARouterAddress_;
