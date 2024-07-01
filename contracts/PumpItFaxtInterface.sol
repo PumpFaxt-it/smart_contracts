@@ -83,8 +83,12 @@ contract PumpItFaxtInterface is Ownable, UsernameRental {
         _deploymentCharge = newCharge_;
     }
 
-    function withdraw(address addr_, uint256 amount_) public onlyOwner {
-        frax.transfer(addr_, amount_);
+    function withdraw(
+        address token_,
+        address addr_,
+        uint256 amount_
+    ) public onlyOwner {
+        IERC20(token_).transfer(addr_, amount_);
     }
 
     function isTokenValid(address addr_) public view returns (bool) {

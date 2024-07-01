@@ -11,17 +11,10 @@ async function main() {
   if (!process.env.DEPLOYER_PRIVATE_KEY) throw "Provide deployer private key";
 
   const provider = new JsonRpcProvider("http://127.0.0.1:8545/");
-  // const deployer = new ethers.Wallet(
-  //   process.env.DEPLOYER_PRIVATE_KEY,
-  //   provider
-  // );
 
   const [deployer] = await ethers.getSigners();
-  // const tx = await ethHolder.sendTransaction({
-  //   to: deployer.address,
-  //   value: ethers.parseUnits("100", "ether"),
-  // });
-  // await tx.wait();
+
+  console.log("Deployer : ", deployer.address);
 
   const DummyFrax = await ethers.getContractFactory("DummyFrax");
   const frax = await DummyFrax.deploy();
@@ -42,7 +35,9 @@ async function main() {
 
   const fraxAddr = await frax.getAddress();
   const pumpItFaxt = await PumpItFaxtInterface.deploy(
-    fraxAddr
+    fraxAddr,
+    "0xAAA16c016BF556fcD620328f0759252E29b1AB57",
+    "0xAAA45c8F5ef92a000a121d102F4e89278a711Faa"
   );
   await pumpItFaxt.waitForDeployment();
 
@@ -65,20 +60,10 @@ async function main() {
     )
   ).wait();
 
-  await frax.transfer("0x85ab0447B80438255E2f8aFcF092f5A272881098",1000000n * ONE_FRAX)
-
-  // await pumpItFaxt.deployNewToken(
-  //   69_420_420,
-  //   "Frax Doge",
-  //   "FXD",
-  //   "https://fraxdoge.xyz/assets/img1-CKTqI1qj.jpeg",
-  //   JSON.stringify({
-  //     website: "fraxdoge.xyz",
-  //     telegram: "fxd",
-  //     description:
-  //       "Ye pata nai kya to kutta kutta laga rakha hai. bakchodi karva lo bas insaano se. chand pe kutta bhejenge, usko saas leni thode na ati hai, mar jaega vo to.",
-  //   })
-  // );
+  await frax.transfer(
+    "0x85ab0447B80438255E2f8aFcF092f5A272881098",
+    1000000n * ONE_FRAX
+  );
 
   console.log(consoleColor("white"));
 
@@ -98,7 +83,7 @@ async function main() {
   const tokenAbi = JSON.stringify(
     JSON.parse(
       readFileSync(
-        "./artifacts/contracts/ERC20BondingCurve.sol/ERC20BondingCurve.json",
+        "./artifacts/contracts/ERC20BondingCurve.sol/PumpFaxtToken.json",
         "utf8"
       )
     ).abi
