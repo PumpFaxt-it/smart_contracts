@@ -10,7 +10,7 @@ contract PumpItFaxtInterface is Ownable {
     mapping(address => bool) private _validTokens;
     IERC20 public frax;
     uint256 private _deploymentCharge = 0;
-    uint256 private _thresholdForDex = 0;
+    uint256 private _thresholdForDex = 100_000_000 * (10 ** 18);
 
     uint256 private _minimumInitialSupply = 0;
     uint256 private _maximumInitialSupply = 0;
@@ -37,8 +37,6 @@ contract PumpItFaxtInterface is Ownable {
         string calldata image_,
         string calldata metadata_
     ) public returns (address) {
-        frax.transferFrom(msg.sender, address(this), _deploymentCharge);
-
         require(
             _minimumInitialSupply <= initialSupply_ * (10 ** 18),
             "Not enough initial supply"
@@ -48,6 +46,9 @@ contract PumpItFaxtInterface is Ownable {
             "Initial supply must be less that maximum allowed supply"
         );
 
+        if (_deploymentCharge > 0)
+            frax.transferFrom(msg.sender, address(this), _deploymentCharge);
+
         PumpFaxtToken newToken = new PumpFaxtToken(
             msg.sender,
             initialSupply_,
@@ -55,7 +56,8 @@ contract PumpItFaxtInterface is Ownable {
             symbol_,
             image_,
             metadata_,
-            address(frax)
+            address(frax),
+            _thresholdForDex
         );
         address newTokenAddress = address(newToken);
 
@@ -102,5 +104,9 @@ contract PumpItFaxtInterface is Ownable {
 
     function setMaximumInitialTokenSupply(uint256 newMaxium_) public onlyOwner {
         _maximumInitialSupply = newMaxium_;
+    }
+
+    function setThresholdForDex(uint256 newThreshold_) public onlyOwner {
+        _thresholdForDex = newThreshold_;
     }
 }

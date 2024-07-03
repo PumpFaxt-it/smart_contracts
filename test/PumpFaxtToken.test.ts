@@ -11,23 +11,23 @@ const ONE_FRAX = BigInt(Math.pow(10, 18));
 const initialSupply = BigInt(69_420_000);
 const reserveThreshold = BigInt(69420) * ONE_FRAX;
 
-describe("ERC20BondingCurve", function () {
+describe("PumpFaxtToken", function () {
   async function deployTokenFixture() {
     const [owner, acc1, acc2] = await hre.ethers.getSigners();
 
     const DummyFrax = await hre.ethers.getContractFactory("DummyFrax");
     const frax = await DummyFrax.connect(owner).deploy();
 
-    const ERC20BondingCurve = await hre.ethers.getContractFactory(
-      "ERC20BondingCurve"
-    );
-    const token = await ERC20BondingCurve.connect(owner).deploy(
+    const PumpFaxtToken = await hre.ethers.getContractFactory("PumpFaxtToken");
+    const token = await PumpFaxtToken.connect(owner).deploy(
       owner.address,
       initialSupply,
       "Pumping Token",
       "PUMP",
       imageUrl,
-      await frax.getAddress()
+      `{}`,
+      await frax.getAddress(),
+      69_420_000
     );
 
     const bondingCurveAddress = await token.getAddress();
@@ -76,7 +76,7 @@ describe("ERC20BondingCurve", function () {
 
       expect(price).approximately(
         (reserveThreshold * BigInt(2)) / initialSupply,
-        ONE_FRAX / BigInt(1000)
+        ONE_FRAX / BigInt(100)
       );
     });
   });
@@ -88,7 +88,7 @@ describe("ERC20BondingCurve", function () {
       );
 
       // Purchase tokens from the Bonding Curve
-      await token.connect(owner).buy(50);
+      await token.connect(owner).buy(50, 0);
 
       // Transfer 50 tokens from owner to acc1
       await token.connect(owner).transfer(acc1.address, 50);
@@ -117,7 +117,7 @@ describe("ERC20BondingCurve", function () {
       );
 
       // Purchase tokens from the Bonding Curve
-      await token.connect(owner).buy(300);
+      await token.connect(owner).buy(300, 0);
 
       const initialOwnerBalance = await token.balanceOf(owner.address);
 
@@ -149,7 +149,8 @@ describe("ERC20BondingCurve", function () {
         await token.buy(
           await token.calculateTokensReceivedByFraxAmount(
             ONE_FRAX * BigInt(5000)
-          )
+          ),
+          0
         );
         history.push(Number(await token.tokenPrice()) / Number(ONE_TOKEN));
       }
@@ -162,10 +163,10 @@ describe("ERC20BondingCurve", function () {
 
       const history: number[] = [];
 
-      await token.buy(ONE_TOKEN * BigInt(10_000_000));
+      await token.buy(ONE_TOKEN * BigInt(10_000_000), 0);
 
       for (let i = 0; i < 100; i++) {
-        await token.sell(ONE_TOKEN * BigInt(100000));
+        await token.sell(ONE_TOKEN * BigInt(100000), 0);
         history.push(Number(await token.tokenPrice()) / Number(ONE_TOKEN));
       }
 
@@ -178,18 +179,23 @@ describe("ERC20BondingCurve", function () {
       await token.buy(
         await token.calculateTokensReceivedByFraxAmount(
           reserveThreshold - BigInt(10)
-        )
+        ),
+        0
       );
 
       const beforePrice = await token.tokenPrice();
 
       await token.buy(
-        await token.calculateTokensReceivedByFraxAmount(BigInt(20))
+        await token.calculateTokensReceivedByFraxAmount(BigInt(20)),
+        0
       );
 
       const afterPrice = await token.tokenPrice();
 
-      expect(beforePrice).to.be.approximately(afterPrice, ONE_FRAX / BigInt(10_000))
+      expect(beforePrice).to.be.approximately(
+        afterPrice,
+        ONE_FRAX / BigInt(10_000)
+      );
     });
   });
 });

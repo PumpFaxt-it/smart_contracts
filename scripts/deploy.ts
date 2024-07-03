@@ -61,10 +61,12 @@ async function main() {
     await usernameRental.getAddress()
   );
 
-  const deploymentCharge = 2
-  await (await pumpItFaxt.setDeploymentCharge(BigInt(deploymentCharge) * ONE_FRAX)).wait();
+  const deploymentCharge = 2;
+  await (
+    await pumpItFaxt.setDeploymentCharge(BigInt(deploymentCharge) * ONE_FRAX)
+  ).wait();
   console.log("Deployment Charge set to : ", deploymentCharge);
-  
+
   await (
     await pumpItFaxt.setMinimumInitialTokenSupply(BigInt(69_420_000) * ONE_FRAX)
   ).wait();
@@ -73,6 +75,7 @@ async function main() {
       BigInt(1_000_000_000) * ONE_FRAX
     )
   ).wait();
+  await (await pumpItFaxt.setThresholdForDex(BigInt(50_000) * ONE_FRAX)).wait();
 
   await frax.transfer(
     "0x9B28C43d4526202c316b9ab0ECCB757C4D9c5155",
@@ -114,6 +117,22 @@ async function main() {
   await writeAbi("DummyFrax", frax, "frax");
   await writeAbi("PumpItFaxtInterface", pumpItFaxt, "pumpItFaxtInterface");
   await writeAbi("UsernameRental", usernameRental, "usernameRental");
+
+  // await (
+  //   await frax.approve(
+  //     await pumpItFaxt.getAddress(),
+  //     BigInt(deploymentCharge) * ONE_FRAX
+  //   )
+  // ).wait();
+  // await (
+  //   await pumpItFaxt.deployNewToken(
+  //     BigInt(1_000_000_000),
+  //     "Name",
+  //     "NAME",
+  //     "https://recipeforperfection.com/wp-content/uploads/2017/11/Movie-Theater-Popcorn-in-a-popcorn-bucket.jpg",
+  //     `{"description":"ok"}`
+  //   )
+  // ).wait();
 }
 
 main()

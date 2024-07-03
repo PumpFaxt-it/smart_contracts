@@ -9,27 +9,20 @@ import "./ERC20withMetadata.sol";
 import "./PumpItFaxtInterface.sol";
 import "./RAPairDeployer.sol";
 
-interface IRARouter {
-    function getAmountOut(
-        uint256 amountIn,
-        address tokenIn,
-        address tokenOut
-    ) external view returns (uint256);
-}
-
 contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
+    uint256 private constant ONE_TOKEN = 1 * (10 ** 18);
+
     IERC20 private tradedToken;
     IERC20 private frax;
     PumpItFaxtInterface private pumpItFaxt;
-    IRARouter private raRouter =
-        IRARouter(0xAAA45c8F5ef92a000a121d102F4e89278a711Faa);
 
     uint256 private _reserve;
     uint256 private _virtualReserve;
     uint256 private _supply;
     uint256 private _displayPrice;
 
-    uint256 private _reserveThreshold = 69420 * (10 ** 18);
+    uint256 private _reserveThreshold;
+    uint256 private _finalSupply;
 
     bool public tradingEnabled = true;
 
@@ -59,11 +52,12 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         string memory symbol_,
         string memory image_,
         string memory metadata_,
-        address fraxAddress_
+        address fraxAddress_,
+        uint256 reserveThreshold_
     )
         ERC20withMetadata(
             creator_,
-            (initialSupply_ * 10000) / 5771,
+            (initialSupply_ * (10000)) / (5771),
             name_,
             symbol_,
             image_,
@@ -74,16 +68,21 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         frax = IERC20(fraxAddress_);
         pumpItFaxt = PumpItFaxtInterface(msg.sender);
 
-        _virtualReserve = _reserveThreshold * 2;
+        _reserveThreshold = reserveThreshold_;
+        _finalSupply = initialSupply_;
+        _virtualReserve = _reserveThreshold / 2;
         updateReserveAndSupply();
     }
 
     function updateReserveAndSupply() private {
         _reserve = _virtualReserve + frax.balanceOf(address(this));
         _supply = balanceOf(address(this));
-        _displayPrice = calculateBuyCostByTokenAmount(1 * (10 ** decimals()));
+        _displayPrice = calculateBuyCostByTokenAmount(ONE_TOKEN);
 
-        if (_reserve >= _reserveThreshold * 3 && _virtualReserve > 0) {
+        if (
+            frax.balanceOf(address(this)) >= _reserveThreshold &&
+            _virtualReserve > 0
+        ) {
             _virtualReserve = 0;
             _burn(address(this), (_supply * 2) / 3);
             createSelfPairWithBalanceAndBurnLP(
@@ -99,26 +98,15 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         emit PriceChange(block.timestamp, _displayPrice, marketCap());
     }
 
-    function tokenPrice() public view returns (uint256) {
-        if (tradingEnabled) return _displayPrice;
-        else
-            return
-                raRouter.getAmountOut(
-                    1 * (10 ** 18),
-                    address(this),
-                    address(frax)
-                ) * totalSupply();
+    function tokenPrice() public view whileTradable returns (uint256) {
+        return _displayPrice;
     }
 
-    function marketCap() public view returns (uint256) {
-        if (tradingEnabled) return _displayPrice * totalSupply();
-        else
-            return
-                raRouter.getAmountOut(
-                    1 * (10 ** 18),
-                    address(this),
-                    address(frax)
-                ) * totalSupply();
+    function marketCap() public view whileTradable returns (uint256) {
+        uint256 ratio = ((supply() * _finalSupply) / totalSupply());
+        if (ratio < ONE_TOKEN) return 0;
+        return ((frax.balanceOf(address(this)) * _finalSupply) /
+            (ratio - ONE_TOKEN));
     }
 
     function reserve() public view returns (uint256) {
@@ -132,6 +120,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     function calculateBuyCostByTokenAmount(
         uint256 amount_
     ) public view whileTradable returns (uint256) {
+        if (supply() < amount_) return type(uint256).max;
         return (reserve() * amount_) / (supply() - amount_);
     }
 
@@ -144,6 +133,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     function calculateTokensByFraxRefundAmount(
         uint256 amount_
     ) public view whileTradable returns (uint256) {
+        if (reserve() < amount_) return type(uint256).max;
         return (supply() * amount_) / (reserve() - amount_);
     }
 
