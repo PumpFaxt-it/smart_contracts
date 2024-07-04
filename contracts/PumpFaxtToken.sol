@@ -146,6 +146,10 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         return (supply() * amount_) / (reserve() + amount_);
     }
 
+    function reserveThreshold() public view returns(uint256){
+        return _reserveThreshold;
+    }
+
     function buy(
         uint256 amountIn_,
         uint256 amountOutMin_

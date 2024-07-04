@@ -62,7 +62,7 @@ describe("PumpFaxtToken", function () {
       displayTokens(await token.tokenPrice());
       displayTokens(await token.marketCap());
 
-      await token.buy(20500n * ONE_FRAX, 0);
+      await token.buy(10n * ONE_FRAX, 0);
 
       displayTokens(await token.tokenPrice());
       displayTokens(await token.marketCap());
