@@ -57,7 +57,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     )
         ERC20withMetadata(
             creator_,
-            (initialSupply_ * (10000)) / (5771),
+            initialSupply_,
             name_,
             symbol_,
             image_,
@@ -70,7 +70,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
 
         _reserveThreshold = reserveThreshold_;
         _finalSupply = initialSupply_;
-        _virtualReserve = _reserveThreshold / 2;
+        _virtualReserve = 15_000 * ONE_TOKEN;
         updateReserveAndSupply();
     }
 
@@ -80,19 +80,25 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
         _displayPrice = calculateBuyCostByTokenAmount(ONE_TOKEN);
 
         if (
-            frax.balanceOf(address(this)) >= _reserveThreshold &&
+            marketCap() >= _reserveThreshold &&
             _virtualReserve > 0
         ) {
-            _virtualReserve = 0;
-            _burn(address(this), (_supply * 2) / 3);
-            createSelfPairWithBalanceAndBurnLP(
-                address(this),
-                address(frax),
-                _supply,
-                _reserve
-            );
-            updateReserveAndSupply();
             tradingEnabled = false;
+
+            uint256 tokensToBeBurnt = calculateTokensReceivedByFraxAmount(
+                _virtualReserve
+            );
+
+            _burn(address(this), tokensToBeBurnt);
+            _virtualReserve = 0;
+
+            // createSelfPairWithBalanceAndBurnLP(
+            //     address(this),
+            //     address(frax),
+            //     _supply,
+            //     _reserve
+            // );
+            updateReserveAndSupply();
         }
 
         emit PriceChange(block.timestamp, _displayPrice, marketCap());
@@ -103,10 +109,7 @@ contract PumpFaxtToken is ERC20withMetadata, RAPairDeployer {
     }
 
     function marketCap() public view whileTradable returns (uint256) {
-        uint256 ratio = ((supply() * _finalSupply) / totalSupply());
-        if (ratio < ONE_TOKEN) return 0;
-        return ((frax.balanceOf(address(this)) * _finalSupply) /
-            (ratio - ONE_TOKEN));
+        return ((_displayPrice * totalSupply()) / ONE_TOKEN) - _virtualReserve;
     }
 
     function reserve() public view returns (uint256) {
