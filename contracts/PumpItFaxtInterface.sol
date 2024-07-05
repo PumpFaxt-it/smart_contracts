@@ -18,6 +18,8 @@ contract PumpItFaxtInterface is Ownable {
     address private _RAPairFactoryAddress;
     address private _RARouterAddress;
 
+    mapping(address => uint16) private _userDisplayPictureIndex;
+
     event Launch(address indexed creator, address token);
 
     constructor(
@@ -94,6 +96,14 @@ contract PumpItFaxtInterface is Ownable {
 
     function isTokenValid(address addr_) public view returns (bool) {
         return _validTokens[addr_];
+    }
+
+    function displayPictureIndex(address user_) public view returns (uint16) {
+        return _userDisplayPictureIndex[user_];
+    }
+
+    function setDisplayPictureIndex(uint16 index) public {
+        _userDisplayPictureIndex[msg.sender] = index;
     }
 
     function setMinimumInitialTokenSupply(
